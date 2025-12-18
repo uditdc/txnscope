@@ -16,6 +16,11 @@ RUN apt-get update && apt-get install -y \
 # Install Rust development tools
 RUN cargo install cargo-watch cargo-edit
 
+# Install Foundry (includes Anvil for local blockchain testing)
+RUN curl -L https://foundry.paradigm.xyz | bash && \
+    /root/.foundry/bin/foundryup
+ENV PATH="/root/.foundry/bin:${PATH}"
+
 # Set working directory
 WORKDIR /workspaces
 

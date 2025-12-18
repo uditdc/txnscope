@@ -21,6 +21,12 @@ rustc --version
 cargo --version
 
 echo ""
+echo "⚒️ Verifying Foundry installation..."
+anvil --version
+cast --version
+forge --version
+
+echo ""
 echo "📗 Verifying Node.js installation..."
 node --version
 npm --version
@@ -45,4 +51,9 @@ echo ""
 echo "🔧 Available tools:"
 echo "  • cargo watch:        cargo install cargo-watch (already installed)"
 echo "  • TypeScript watch:   npm run dev"
+echo ""
+echo "⚒️ Foundry/Anvil (Local blockchain for TDD):"
+echo "  • Start local node:   anvil --ipc"
+echo "  • Send test tx:       cast send --private-key <key> <to> --value 1ether"
+echo "  • Check IPC socket:   ls /tmp/anvil.ipc"
 echo ""
