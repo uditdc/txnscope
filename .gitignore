@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+target/
+
+# Build outputs
+dist/
+*.log
+
+# Environment
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+
+# Others
+.private
