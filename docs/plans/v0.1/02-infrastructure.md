@@ -5,14 +5,7 @@
 
 ---
 
-## 2.1 Bare Metal Server
-
-- [ ] Rent bare-metal server (Hetzner AX line / Latitude.sh)
-- [ ] Minimum spec: 16-core AMD EPYC, 64GB RAM, NVMe SSD
-
----
-
-## 2.2 Blockchain Node
+## 2.1 Blockchain Node
 
 - [ ] Install Monad node (monad-geth fork) or Berachain (polaris)
 - [ ] Configure aggressive mempool retention (`txpool.globalslots`)
@@ -21,7 +14,7 @@
 
 ---
 
-## 2.3 CPU Pinning Strategy
+## 2.2 CPU Pinning Strategy
 
 ```
 Cores 0-11:  Blockchain Node (syncing is heavy)
@@ -32,7 +25,7 @@ Cores 14-15: API Gateway (WebSocket management)
 
 ---
 
-## 2.4 Redis Setup
+## 2.3 Redis Setup
 
 - [ ] Install Redis instance
 - [ ] Configure for Pub/Sub workload
@@ -81,11 +74,11 @@ scripts/
 
 ## 2.6 Test Tasks
 
-- [ ] Write script to start/stop Anvil with IPC socket
-- [ ] Write script to validate Anvil IPC connectivity
-- [ ] Write script to test Redis pub/sub latency (<2ms target)
-- [ ] Write script to send mock DEX swap transaction via `cast`
-- [ ] Create fixtures for sample DEX transactions (all 6 method types)
+- [x] Write script to start/stop Anvil with IPC socket
+- [x] Write script to validate Anvil IPC connectivity
+- [x] Write script to test Redis pub/sub latency (<2ms target)
+- [x] Write script to send mock DEX swap transaction via `cast`
+- [x] Create fixtures for sample DEX transactions (all 6 method types)
 
 ---
 

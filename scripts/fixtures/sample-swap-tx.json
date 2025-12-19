@@ -1,0 +1,346 @@
+{
+  "_comment": "Sample DEX swap transaction fixtures for testing TxnScope",
+  "_version": "1.0.0",
+
+  "contracts": {
+    "uniswapV3Router": "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45",
+    "uniswapV3PositionManager": "0xC36442b4a4522E871399CD717aBDD847Ab11FE88",
+    "uniswapV2Router": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+    "uniswapV2Factory": "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f",
+    "weth": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+    "usdc": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+    "dai": "0x6B175474E89094C44Da98b954EesEcdB1A8fFe1f5Bca",
+    "mockNewToken": "0x1234567890AbcdEF1234567890aBcDeF12345678"
+  },
+
+  "methodSelectors": {
+    "v3": {
+      "exactInputSingle": "0x04e45aaf",
+      "exactOutputSingle": "0x5023b4df",
+      "exactInput": "0xb858183f",
+      "exactOutput": "0x09b81346",
+      "multicall": "0x5ae401dc"
+    },
+    "v3Liquidity": {
+      "mint": "0x88316456",
+      "increaseLiquidity": "0x219f5d17",
+      "decreaseLiquidity": "0x0c49ccbe",
+      "collect": "0xfc6f7865"
+    },
+    "v2": {
+      "swapExactTokensForTokens": "0x38ed1739",
+      "swapTokensForExactTokens": "0x8803dbee",
+      "swapExactETHForTokens": "0x7ff36ab5",
+      "swapTokensForExactETH": "0x4a25d94a",
+      "swapExactTokensForETH": "0x18cbafe5",
+      "swapETHForExactTokens": "0xfb3bdb41"
+    },
+    "v2Liquidity": {
+      "addLiquidity": "0xe8e33700",
+      "addLiquidityETH": "0xf305d719",
+      "removeLiquidity": "0xbaa2abde",
+      "removeLiquidityETH": "0x02751cec"
+    }
+  },
+
+  "uniswapV3": {
+    "exactInputSingle": {
+      "description": "Swap exact amount of input token for minimum output",
+      "method": "exactInputSingle((address,address,uint24,address,uint256,uint256,uint160))",
+      "selector": "0x04e45aaf",
+      "example": {
+        "params": {
+          "tokenIn": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+          "tokenOut": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+          "fee": 3000,
+          "recipient": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "amountIn": "1000000000000000000",
+          "amountOutMinimum": "1",
+          "sqrtPriceLimitX96": "0"
+        },
+        "calldata": "0x04e45aaf000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb480000000000000000000000000000000000000000000000000000000000000bb8000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000"
+      }
+    },
+
+    "exactOutputSingle": {
+      "description": "Swap maximum input for exact amount of output token",
+      "method": "exactOutputSingle((address,address,uint24,address,uint256,uint256,uint160))",
+      "selector": "0x5023b4df",
+      "example": {
+        "params": {
+          "tokenIn": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+          "tokenOut": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+          "fee": 3000,
+          "recipient": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "amountOut": "1000000000",
+          "amountInMaximum": "2000000000000000000",
+          "sqrtPriceLimitX96": "0"
+        },
+        "calldata": "0x5023b4df000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb480000000000000000000000000000000000000000000000000000000000000bb8000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266000000000000000000000000000000000000000000000000000000003b9aca000000000000000000000000000000000000000000000000001bc16d674ec800000000000000000000000000000000000000000000000000000000000000000000"
+      }
+    },
+
+    "exactInput": {
+      "description": "Multi-hop swap with exact input amount through a path",
+      "method": "exactInput((bytes,address,uint256,uint256))",
+      "selector": "0xb858183f",
+      "example": {
+        "params": {
+          "path": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2000bb8a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+          "recipient": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "amountIn": "1000000000000000000",
+          "amountOutMinimum": "1"
+        },
+        "note": "Path encoding: tokenIn (20 bytes) + fee (3 bytes) + tokenOut (20 bytes)"
+      }
+    },
+
+    "exactOutput": {
+      "description": "Multi-hop swap with exact output amount through a path",
+      "method": "exactOutput((bytes,address,uint256,uint256))",
+      "selector": "0x09b81346",
+      "example": {
+        "params": {
+          "path": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48000bb8c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+          "recipient": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "amountOut": "1000000000",
+          "amountInMaximum": "2000000000000000000"
+        },
+        "note": "Path encoding is reversed for exactOutput: tokenOut first"
+      }
+    },
+
+    "multicall": {
+      "description": "Batch multiple swap operations in a single transaction",
+      "method": "multicall(uint256,bytes[])",
+      "selector": "0x5ae401dc",
+      "example": {
+        "params": {
+          "deadline": 1735689600,
+          "data": ["<encoded exactInputSingle call>", "<encoded exactOutputSingle call>"]
+        },
+        "note": "Each bytes element is a complete encoded function call"
+      }
+    }
+  },
+
+  "uniswapV2": {
+    "swapExactTokensForTokens": {
+      "description": "Swap exact input tokens for minimum output tokens",
+      "method": "swapExactTokensForTokens(uint256,uint256,address[],address,uint256)",
+      "selector": "0x38ed1739",
+      "example": {
+        "params": {
+          "amountIn": "1000000000000000000",
+          "amountOutMin": "1",
+          "path": ["0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"],
+          "to": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "deadline": 1735689600
+        },
+        "calldata": "0x38ed17390000000000000000000000000000000000000000000000000de0b6b3a7640000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb9226600000000000000000000000000000000000000000000000000000000677f50000000000000000000000000000000000000000000000000000000000000000002000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+      }
+    },
+
+    "swapTokensForExactTokens": {
+      "description": "Swap maximum input tokens for exact output tokens",
+      "method": "swapTokensForExactTokens(uint256,uint256,address[],address,uint256)",
+      "selector": "0x8803dbee",
+      "example": {
+        "params": {
+          "amountOut": "1000000000",
+          "amountInMax": "2000000000000000000",
+          "path": ["0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"],
+          "to": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "deadline": 1735689600
+        },
+        "calldata": "0x8803dbee000000000000000000000000000000000000000000000000000000003b9aca000000000000000000000000000000000000000000000000001bc16d674ec8000000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb9226600000000000000000000000000000000000000000000000000000000677f50000000000000000000000000000000000000000000000000000000000000000002000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+      }
+    },
+
+    "swapExactETHForTokens": {
+      "description": "Swap exact ETH for minimum output tokens (ETH sent as msg.value)",
+      "method": "swapExactETHForTokens(uint256,address[],address,uint256)",
+      "selector": "0x7ff36ab5",
+      "example": {
+        "params": {
+          "amountOutMin": "1",
+          "path": ["0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"],
+          "to": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "deadline": 1735689600
+        },
+        "value": "1000000000000000000",
+        "note": "ETH amount is sent as msg.value, path must start with WETH"
+      }
+    },
+
+    "swapTokensForExactETH": {
+      "description": "Swap maximum input tokens for exact ETH output",
+      "method": "swapTokensForExactETH(uint256,uint256,address[],address,uint256)",
+      "selector": "0x4a25d94a",
+      "example": {
+        "params": {
+          "amountOut": "1000000000000000000",
+          "amountInMax": "2000000000",
+          "path": ["0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"],
+          "to": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "deadline": 1735689600
+        },
+        "note": "Path must end with WETH"
+      }
+    },
+
+    "swapExactTokensForETH": {
+      "description": "Swap exact input tokens for minimum ETH output",
+      "method": "swapExactTokensForETH(uint256,uint256,address[],address,uint256)",
+      "selector": "0x18cbafe5",
+      "example": {
+        "params": {
+          "amountIn": "1000000000",
+          "amountOutMin": "1",
+          "path": ["0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"],
+          "to": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "deadline": 1735689600
+        },
+        "note": "Path must end with WETH"
+      }
+    },
+
+    "swapETHForExactTokens": {
+      "description": "Swap ETH (max from msg.value) for exact output tokens",
+      "method": "swapETHForExactTokens(uint256,address[],address,uint256)",
+      "selector": "0xfb3bdb41",
+      "example": {
+        "params": {
+          "amountOut": "1000000000",
+          "path": ["0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"],
+          "to": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "deadline": 1735689600
+        },
+        "value": "2000000000000000000",
+        "note": "ETH sent as msg.value, excess is refunded"
+      }
+    }
+  },
+
+  "liquidity": {
+    "_comment": "Liquidity addition fixtures for new token launches",
+
+    "v2AddLiquidityETH": {
+      "description": "Add initial liquidity for a new token paired with ETH (most common for new launches)",
+      "method": "addLiquidityETH(address,uint256,uint256,uint256,address,uint256)",
+      "selector": "0xf305d719",
+      "scenario": "Creator launches MEME token and adds 10 ETH + 1,000,000 MEME as first liquidity",
+      "example": {
+        "params": {
+          "token": "0x1234567890AbcdEF1234567890aBcDeF12345678",
+          "amountTokenDesired": "1000000000000000000000000",
+          "amountTokenMin": "1000000000000000000000000",
+          "amountETHMin": "10000000000000000000",
+          "to": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "deadline": 1735689600
+        },
+        "value": "10000000000000000000",
+        "note": "First liquidity add creates the pair. amountTokenDesired = 1M tokens (18 decimals), value = 10 ETH",
+        "calldata": "0xf305d7190000000000000000000000001234567890abcdef1234567890abcdef1234567800000000000000000000000000000000000000000000d3c21bcecceda100000000000000000000000000000000000000000000000000d3c21bcecceda10000000000000000000000000000000000000000000000000000008ac7230489e80000000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb9226600000000000000000000000000000000000000000000000000000000677f5000"
+      }
+    },
+
+    "v2AddLiquidity": {
+      "description": "Add liquidity for two ERC20 tokens",
+      "method": "addLiquidity(address,address,uint256,uint256,uint256,uint256,address,uint256)",
+      "selector": "0xe8e33700",
+      "scenario": "Add liquidity for MEME/USDC pair",
+      "example": {
+        "params": {
+          "tokenA": "0x1234567890AbcdEF1234567890aBcDeF12345678",
+          "tokenB": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+          "amountADesired": "1000000000000000000000000",
+          "amountBDesired": "100000000000",
+          "amountAMin": "950000000000000000000000",
+          "amountBMin": "95000000000",
+          "to": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "deadline": 1735689600
+        },
+        "note": "1M MEME tokens + 100K USDC (6 decimals)"
+      }
+    },
+
+    "v3Mint": {
+      "description": "Create a new V3 liquidity position for a new token (NonfungiblePositionManager)",
+      "method": "mint((address,address,uint24,int24,int24,uint256,uint256,uint256,uint256,address,uint256))",
+      "selector": "0x88316456",
+      "scenario": "Creator adds first V3 liquidity for MEME/WETH at 0.3% fee tier",
+      "example": {
+        "params": {
+          "token0": "0x1234567890AbcdEF1234567890aBcDeF12345678",
+          "token1": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+          "fee": 3000,
+          "tickLower": -887220,
+          "tickUpper": 887220,
+          "amount0Desired": "1000000000000000000000000",
+          "amount1Desired": "10000000000000000000",
+          "amount0Min": "0",
+          "amount1Min": "0",
+          "recipient": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "deadline": 1735689600
+        },
+        "note": "Full range position (-887220 to 887220 ticks). token0 must be < token1 by address. 1M MEME + 10 WETH."
+      }
+    },
+
+    "v3IncreaseLiquidity": {
+      "description": "Add more liquidity to an existing V3 position",
+      "method": "increaseLiquidity((uint256,uint256,uint256,uint256,uint256,uint256))",
+      "selector": "0x219f5d17",
+      "example": {
+        "params": {
+          "tokenId": "123456",
+          "amount0Desired": "500000000000000000000000",
+          "amount1Desired": "5000000000000000000",
+          "amount0Min": "0",
+          "amount1Min": "0",
+          "deadline": 1735689600
+        },
+        "note": "Add 500K more MEME + 5 WETH to existing position NFT #123456"
+      }
+    }
+  },
+
+  "newTokenLaunchScenario": {
+    "_comment": "Complete scenario for a new meme token launch",
+    "token": {
+      "name": "Test Meme Token",
+      "symbol": "MEME",
+      "decimals": 18,
+      "totalSupply": "1000000000000000000000000000",
+      "address": "0x1234567890AbcdEF1234567890aBcDeF12345678"
+    },
+    "initialLiquidity": {
+      "description": "Creator adds first liquidity: 10 ETH + 1,000,000 MEME",
+      "ethAmount": "10000000000000000000",
+      "tokenAmount": "1000000000000000000000000",
+      "impliedPrice": "0.00001 ETH per MEME (or 100,000 MEME per ETH)",
+      "method": "addLiquidityETH",
+      "router": "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
+    },
+    "firstSwapAfterLaunch": {
+      "description": "First buyer swaps 0.1 ETH for MEME tokens right after liquidity is added",
+      "method": "swapExactETHForTokens",
+      "ethIn": "100000000000000000",
+      "expectedTokensOut": "~9900 MEME (with slippage)",
+      "note": "High slippage expected on low liquidity pools"
+    }
+  },
+
+  "testAccounts": {
+    "_comment": "Anvil default test accounts",
+    "account0": {
+      "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      "privateKey": "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+    },
+    "account1": {
+      "address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+      "privateKey": "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d"
+    }
+  }
+}

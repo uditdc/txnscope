@@ -2,7 +2,7 @@
 
 ## Overview
 
-This plan outlines the complete implementation of TxnScope - a Mempool-as-a-Service infrastructure for AI agents. Built from the Business Plan (README.md) and Technical Spec (prd-v1.1.md).
+This plan outlines the complete implementation of TxnScope - a Mempool-as-a-Service infrastructure for AI agents.
 
 **Core Thesis:** "The Bloomberg Terminal for AI Agents"
 **Target Chains:** Monad, Berachain
