@@ -1,0 +1,71 @@
+# syntax=docker/dockerfile:1
+
+# =============================================================================
+# TxnScope Ingestor - Multi-stage Rust Build
+# =============================================================================
+# Optimized for low-latency mempool ingestion service
+# Build: docker build -f docker/Dockerfile.ingestor -t txnscope-ingestor .
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Stage 1: Build
+# -----------------------------------------------------------------------------
+FROM rust:1.83-slim-bookworm AS builder
+
+WORKDIR /build
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    pkg-config \
+    libssl-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy workspace files for dependency caching
+COPY packages/ingestor/Cargo.toml packages/ingestor/Cargo.lock* ./
+
+# Create dummy src to cache dependencies
+RUN mkdir -p src && \
+    echo 'fn main() { println!("dummy"); }' > src/main.rs && \
+    cargo build --release && \
+    rm -rf src
+
+# Copy actual source code
+COPY packages/ingestor/src ./src
+
+# Build release binary (touch main.rs to force rebuild)
+RUN touch src/main.rs && \
+    cargo build --release --locked 2>/dev/null || cargo build --release
+
+# -----------------------------------------------------------------------------
+# Stage 2: Runtime
+# -----------------------------------------------------------------------------
+FROM debian:bookworm-slim AS runtime
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    libssl3 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create non-root user for security
+RUN useradd --create-home --shell /bin/bash ingestor
+
+WORKDIR /app
+
+# Copy binary from builder
+COPY --from=builder /build/target/release/txnscope-ingestor /app/ingestor
+
+# Set ownership
+RUN chown -R ingestor:ingestor /app
+
+USER ingestor
+
+# Environment defaults
+ENV RUST_LOG=info
+ENV RUST_BACKTRACE=1
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD pgrep -x ingestor || exit 1
+
+ENTRYPOINT ["/app/ingestor"]

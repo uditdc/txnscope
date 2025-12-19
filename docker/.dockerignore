@@ -1,0 +1,66 @@
+# =============================================================================
+# TxnScope Docker Ignore
+# =============================================================================
+
+# Version control
+.git
+.gitignore
+
+# IDE and editor
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Development containers
+.devcontainer
+
+# Documentation
+docs
+*.md
+!README.md
+
+# Build artifacts - Rust
+packages/ingestor/target
+**/*.rs.bk
+
+# Build artifacts - TypeScript
+packages/gateway/node_modules
+packages/gateway/dist
+packages/sdk/node_modules
+packages/sdk/dist
+
+# Build artifacts - Contracts
+packages/contracts/out
+packages/contracts/cache
+packages/contracts/node_modules
+
+# Test files
+scripts/test-infra
+scripts/fixtures
+**/*.test.ts
+**/*.spec.ts
+**/tests
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+logs
+
+# Docker
+docker-compose*.yml
+Dockerfile*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+/tmp

@@ -1,0 +1,70 @@
+# syntax=docker/dockerfile:1
+
+# =============================================================================
+# TxnScope Gateway - Multi-stage Node.js Build
+# =============================================================================
+# WebSocket/REST API gateway for mempool signals
+# Build: docker build -f docker/Dockerfile.gateway -t txnscope-gateway .
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Stage 1: Build
+# -----------------------------------------------------------------------------
+FROM node:20-slim AS builder
+
+WORKDIR /build
+
+# Copy package files for dependency caching
+COPY packages/gateway/package.json packages/gateway/package-lock.json* ./
+
+# Install all dependencies (including devDependencies for build)
+RUN npm ci
+
+# Copy source code
+COPY packages/gateway/tsconfig.json ./
+COPY packages/gateway/src ./src
+
+# Build TypeScript
+RUN npm run build
+
+# -----------------------------------------------------------------------------
+# Stage 2: Runtime
+# -----------------------------------------------------------------------------
+FROM node:20-slim AS runtime
+
+# Install security updates
+RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
+
+# Create non-root user for security
+RUN useradd --create-home --shell /bin/bash gateway
+
+WORKDIR /app
+
+# Copy package files
+COPY packages/gateway/package.json packages/gateway/package-lock.json* ./
+
+# Install production dependencies only
+RUN npm ci --omit=dev && npm cache clean --force
+
+# Copy built application from builder
+COPY --from=builder /build/dist ./dist
+
+# Set ownership
+RUN chown -R gateway:gateway /app
+
+USER gateway
+
+# Environment defaults
+ENV NODE_ENV=production
+ENV HOST=0.0.0.0
+ENV API_PORT=3000
+ENV WS_PORT=8080
+
+# Expose ports
+EXPOSE 3000 8080
+
+# Health check on API port
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+    CMD node -e "fetch('http://localhost:3000/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
+
+CMD ["node", "dist/index.js"]

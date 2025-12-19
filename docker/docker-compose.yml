@@ -1,0 +1,120 @@
+# =============================================================================
+# TxnScope Production Stack
+# =============================================================================
+# Usage:
+#   docker compose -f docker/docker-compose.yml build
+#   docker compose -f docker/docker-compose.yml up -d
+#   docker compose -f docker/docker-compose.yml logs -f
+# =============================================================================
+
+services:
+  # ---------------------------------------------------------------------------
+  # Redis - Pub/Sub Message Broker
+  # ---------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: txnscope-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+    networks:
+      - txnscope-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 512M
+        reservations:
+          cpus: "0.5"
+          memory: 256M
+
+  # ---------------------------------------------------------------------------
+  # Ingestor - Rust Mempool Listener
+  # ---------------------------------------------------------------------------
+  ingestor:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.ingestor
+    image: txnscope-ingestor:latest
+    container_name: txnscope-ingestor
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      - NODE_IPC_PATH=${NODE_IPC_PATH:-/tmp/node.ipc}
+      - CHAIN_ID=${CHAIN_ID:-monad}
+      - REDIS_URL=redis://redis:6379
+      - REDIS_CHANNEL=${REDIS_CHANNEL:-mempool_alpha}
+      - RUST_LOG=${LOG_LEVEL:-info}
+    volumes:
+      # Mount blockchain node IPC socket
+      - ${NODE_IPC_PATH:-/tmp/node.ipc}:/tmp/node.ipc:ro
+    networks:
+      - txnscope-net
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 1G
+        reservations:
+          cpus: "1"
+          memory: 512M
+
+  # ---------------------------------------------------------------------------
+  # Gateway - WebSocket/REST API
+  # ---------------------------------------------------------------------------
+  gateway:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.gateway
+    image: txnscope-gateway:latest
+    container_name: txnscope-gateway
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+    ports:
+      - "${API_PORT:-3000}:3000"
+      - "${WS_PORT:-8080}:8080"
+    environment:
+      - NODE_ENV=production
+      - HOST=0.0.0.0
+      - API_PORT=3000
+      - WS_PORT=8080
+      - REDIS_URL=redis://redis:6379
+      - REDIS_CHANNEL=${REDIS_CHANNEL:-mempool_alpha}
+      - API_KEYS=${API_KEYS:-}
+      - WHALE_WHITELIST=${WHALE_WHITELIST:-}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    networks:
+      - txnscope-net
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 1G
+        reservations:
+          cpus: "1"
+          memory: 512M
+
+# -----------------------------------------------------------------------------
+# Networks
+# -----------------------------------------------------------------------------
+networks:
+  txnscope-net:
+    driver: bridge
+
+# -----------------------------------------------------------------------------
+# Volumes
+# -----------------------------------------------------------------------------
+volumes:
+  redis-data:
+    driver: local
