@@ -17,11 +17,12 @@ While 19% of all blockchain activity is now driven by AI agents, these agents ar
 - **Target Latency:** <50ms (goal: ~17ms)
 - **Comparison:** Public RPCs deliver in 200-500ms
 - **Advantage:** 150-450ms head start
+- **Monetization:** x402 payment standard for agent-native payments
 
 ## Architecture
 
 ```
-[Blockchain Node] <==IPC==> [Ingestor] --> [Redis Pub/Sub] --> [Gateway] <==WS==> [AI Agent]
+[Blockchain Node] <==IPC==> [Ingestor] --> [Redis Pub/Sub] --> [Gateway] <==WS/x402==> [AI Agent]
      (Monad/Berachain)      (Rust)         (In-Memory)       (TypeScript)
 ```
 
@@ -46,16 +47,20 @@ While 19% of all blockchain activity is now driven by AI agents, these agents ar
    - Decouples ingestion from distribution
    - Handles burst traffic gracefully
 
+## x402 Payment Integration (Phase 2)
+
+TxnScope uses the [x402 Payment Required](https://www.x402.org/) standard for agent-native monetization:
+
+- **HTTP 402 Flow:** Agents receive payment-required responses with pricing metadata
+- **State Channels:** Near-instant settlement without per-transaction gas costs
+- **Pay-per-Request:** No subscriptions required; agents pay only for data consumed
+- **Smart Contract Escrow:** Funds held in on-chain escrow, released on valid delivery
+
+This enables autonomous AI agents to programmatically pay for premium mempool access.
+
 ## Quick Start
 
 ### Option 1: GitHub Codespaces (Recommended)
-
-Click the badge above or:
-
-```bash
-# Open this repo in Codespaces
-# Everything will be set up automatically!
-```
 
 The dev container includes:
 
@@ -76,7 +81,7 @@ The dev container includes:
 
 ```bash
 # Clone the repository
-git clone <your-repo-url>
+git clone https://github.com/uditdc/txnscope
 cd txnscope
 
 # Install TypeScript gateway dependencies
@@ -197,6 +202,10 @@ API_PORT=3000
 
 # Authentication
 API_KEYS=your-key-1,your-key-2
+
+# x402 Payments (Phase 2)
+X402_CONTRACT_ADDRESS=0x...
+X402_ENABLED=false
 ```
 
 ## Performance Targets
